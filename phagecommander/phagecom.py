@@ -1443,8 +1443,11 @@ class GeneMain(QMainWindow):
                 for minCheck, minGene in minTextList:
                     if minCheck:
                         minGeneIndex = headerIndexes[minGene.identity]
-                        for idx in range(4):
-                            item = table.item(currentRow, minGeneIndex + idx)
+                        if compareStart:
+                            item = table.item(currentRow, minGeneIndex + 1)
+                            item.setForeground(minTextColor)
+                        else:
+                            item = table.item(currentRow, minGeneIndex + 2)
                             item.setForeground(minTextColor)
                 # (GRyde) ******************************************************************** end
 
