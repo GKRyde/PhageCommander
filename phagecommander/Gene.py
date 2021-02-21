@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 import json
 import time
 import os
+import sys #(GRyde) Needed for current solution to creating .exe
 from typing import Callable, List
 from subprocess import Popen, PIPE
 import subprocess
@@ -30,9 +31,30 @@ GMS2_DOMAIN = 'http://exon.gatech.edu/GeneMark/genemarks2.cgi'
 GLIMMER_DOMAIN = 'http://18.220.233.194/glimmer'  # Server DNA master uses
 
 # species
-species_file = os.path.join(os.path.dirname(__file__), 'species.txt')
+# (GRyde) *****************************************************************************
+# PyInstaller creates a temp folder and stores path in _MEIPASS
+# In instances where script is run from python instead of .exe, will use current directory to find species.txt
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+        
+    return os.path.join(base_path, relative_path)
+    
+# (GRyde) **************************************************************************** Original author code
+# species
+#species_file = os.path.join(os.path.dirname(__file__), 'species.txt')
+#with open(species_file, 'r') as file:
+    #SPECIES = [specie.strip() for specie in file]
+# (GRyde) ***************************************************************************** end
+
+# (GRyde) ***************************************************************************** start
+# Call resource_path to determine appropriate file path based on run environment (.exe vs python)
+species_file = resource_path('species.txt')
 with open(species_file, 'r') as file:
     SPECIES = [specie.strip() for specie in file]
+# (GRyde) ***************************************************************************** end
 
 # tools
 TOOLS = ['gm', 'hmm', 'heuristic', 'gms', 'gms2', 'prodigal', 'glimmer', 'rast', 'metagene', 'aragorn']
