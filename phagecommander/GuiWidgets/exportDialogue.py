@@ -16,12 +16,12 @@ class exportDialog(QDialog):
     Default behavior is to call QDialog.accept()/QDialog.reject()
     """
     
-    # 02/06/2021 Strings updated to reflect request for clearer language
+    # (GRyde) Strings updated
     _EXACTLY_BUTTON_TEXT = 'Exactly'
-    _LESS_THAN_EQUAL_BUTTON_TEXT = 'Less than or equal to'
-    _GREATER_THAN_BUTTON_TEXT = 'More than'
-    _ALL_BUTTON_TEXT = 'ALL'
-    _ONE_BUTTON_TEXT = 'ONE'
+    _LESS_THAN_EQUAL_BUTTON_TEXT = 'No more than'
+    _GREATER_THAN_BUTTON_TEXT = 'At least'
+    _ALL_BUTTON_TEXT = 'Called by all programs (Max. calls)'
+    _ONE_BUTTON_TEXT = 'Export all genes'
     _INVALID_SAVE_FILE_BORDER = 'border: 1px solid red'
 
     def __init__(self, queryData, settings, parent=None):
@@ -180,17 +180,25 @@ class exportDialog(QDialog):
             self.filterSpinBox.setMaximum(maxVal)
             self.filterSpinBox.setMinimum(1)
 
-        # set range from 0, max - 1
+        # (GRyde) Updating range to accommodate change from > comparison operator to >=
+        # (Updated) set range from 1, max
+        # Effectively same as exactly or LTE but will keep separate just in case for later
+        # (Old) set range from 0, max - 1
         elif buttonText == self._GREATER_THAN_BUTTON_TEXT:
-            maxVal = self.toolCount - 1
+            maxVal = self.toolCount 
             self.filterSpinBox.setMaximum(maxVal)
-            self.filterSpinBox.setMinimum(0)
+            self.filterSpinBox.setMinimum(1)
 
+        # (GRyde) Clarification on what "ALL" refers to
+        # Doesn't export all genes, just exports genes called by all used programs
+        # So if 8 programs used, set spin box value to 8 and use comparison operator of ==
         elif buttonText == self._ALL_BUTTON_TEXT:
             # set box to max and disable
             self.filterSpinBox.setValue(self.toolCount)
             self.filterSpinBox.setDisabled(True)
 
+        # (GRyde) Currently this only pulls genes called by 1 program when it should be all genes called by AT LEAST 1 program (so all genes)
+        #         Will just updated lambda to >=. Since this sets the value as 1, then >= 1 will pull everything    
         elif buttonText == self._ONE_BUTTON_TEXT:
             # set box to one and disable
             self.filterSpinBox.setValue(1)
@@ -216,9 +224,9 @@ class exportDialog(QDialog):
         filterFunctions = {
             self._ALL_BUTTON_TEXT: lambda x: x == filterAmount,
             self._LESS_THAN_EQUAL_BUTTON_TEXT: lambda x: x <= filterAmount,
-            self._GREATER_THAN_BUTTON_TEXT: lambda x: x > filterAmount,
+            self._GREATER_THAN_BUTTON_TEXT: lambda x: x >= filterAmount,
             self._EXACTLY_BUTTON_TEXT: lambda x: x == filterAmount,
-            self._ONE_BUTTON_TEXT: lambda x: x == filterAmount
+            self._ONE_BUTTON_TEXT: lambda x: x >= filterAmount
         }
 
         return filterFunctions[self.currentSelection]
